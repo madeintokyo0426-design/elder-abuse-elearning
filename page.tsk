@@ -1,0 +1,786 @@
+'use client'
+import React, { useEffect, useMemo, useState } from "react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { CheckCircle2, XCircle, RefreshCcw } from "lucide-react";
+
+// ---------------------------------------------
+// 鬮倬ｽ｢閠・剞蠕・亟豁｢繝ｻ讓ｩ蛻ｩ謫∬ｭｷ e-learning・育､ｾ蜀・髄縺托ｼ・// 隕∽ｻｶ:
+// 繝ｻ蜈ｨ20蝠上°繧画ｯ主屓繝ｩ繝ｳ繝繝縺ｧ15蝠上ｒ蜃ｺ鬘・// 繝ｻ蝗樒ｭ泌ｾ後梧治轤ｹ縺吶ｋ縲阪〒邨先棡陦ｨ遉ｺ
+// 繝ｻ貅轤ｹ(15/15)莉･螟悶・邨ゆｺ・＆縺帙★蜀肴倦謌ｦ繝懊ち繝ｳ縺ｮ縺ｿ陦ｨ遉ｺ
+// 繝ｻ蜀肴倦謌ｦ譎ゅ・蜀阪・繝ｩ繝ｳ繝繝謚ｽ蜃ｺ・域ｯ主屓逡ｰ縺ｪ繧倶ｸｦ縺ｳ/邨・粋縺幢ｼ・// 繝ｻ荳雁刀縺ｧ鬮倡ｴ壽─縺ｮ縺ゅｋ隕区・∴・・ailwind + subtle gold accents・・// ---------------------------------------------
+
+// 雉ｪ蝠上ョ繝ｼ繧ｿ・・nswer 縺ｯ 0-based index・・const allQuestions = [
+  {
+    id: 1,
+    text: "鬮倬ｽ｢閠・剞蠕・亟豁｢豕輔〒螳夂ｾｩ縺輔ｌ縺ｦ縺・ｋ5縺､縺ｮ陌仙ｾ・・遞ｮ鬘槭→縺励※縲∵ｭ｣縺励＞邨・∩蜷医ｏ縺帙・縺ｩ繧後〒縺吶°縲・,
+    choices: [
+      "霄ｫ菴鍋噪陌仙ｾ・∫ｲｾ逾樒噪陌仙ｾ・∫､ｾ莨夂噪陌仙ｾ・∽ｻ玖ｭｷ謾ｾ譽・∬・蟾ｱ謾ｾ莉ｻ",
+      "證ｴ蜉帷噪陌仙ｾ・∝ｿ・炊逧・剞蠕・∵ｧ逧・剞蠕・∫ｵ梧ｸ育噪陌仙ｾ・∽ｸ冶ｩｱ縺ｮ謾ｾ譽・,
+      "霄ｫ菴鍋噪陌仙ｾ・∽ｻ玖ｭｷ繝ｻ荳冶ｩｱ縺ｮ謾ｾ譽・・謾ｾ莉ｻ・医ロ繧ｰ繝ｬ繧ｯ繝茨ｼ峨∝ｿ・炊逧・剞蠕・∵ｧ逧・剞蠕・∫ｵ梧ｸ育噪陌仙ｾ・,
+      "霄ｫ菴鍋噪陌仙ｾ・∫ｲｾ逾樒噪陌仙ｾ・∫ｵ梧ｸ育噪陌仙ｾ・∫､ｾ莨夂噪陌仙ｾ・√そ繝ｫ繝輔・繝阪げ繝ｬ繧ｯ繝・,
+    ],
+    answer: 2,
+    explanation:
+      "鬮倬ｽ｢閠・剞蠕・亟豁｢豕慕ｬｬ2譚｡縺ｧ縺ｯ縲∬剞蠕・ｒ縲手ｺｫ菴鍋噪陌仙ｾ・上惹ｻ玖ｭｷ繝ｻ荳冶ｩｱ縺ｮ謾ｾ譽・・謾ｾ莉ｻ・医ロ繧ｰ繝ｬ繧ｯ繝茨ｼ峨上主ｿ・炊逧・剞蠕・上取ｧ逧・剞蠕・上守ｵ梧ｸ育噪陌仙ｾ・上・5遞ｮ鬘槭↓蛻・｡槭＠縺ｦ縺・∪縺吶ゅそ繝ｫ繝輔・繝阪げ繝ｬ繧ｯ繝医・豕募ｾ倶ｸ翫・陌仙ｾ・・螳夂ｾｩ縺ｫ縺ｯ蜷ｫ縺ｾ繧後∪縺帙ｓ縲・,
+  },
+  {
+    id: 2,
+    text: "逕溷多縺ｾ縺溘・霄ｫ菴薙↓驥榊､ｧ縺ｪ蜊ｱ髯ｺ縺檎函縺倥※縺・ｋ陌仙ｾ・ｒ逋ｺ隕九＠縺溷ｴ蜷医∵ｳ募ｾ九〒螳壹ａ繧峨ｌ縺溽ｾｩ蜍吶・菴輔〒縺吶°縲・,
+    choices: [
+      "隴ｦ蟇溘↓逶ｴ縺｡縺ｫ騾壼ｱ縺吶ｋ鄒ｩ蜍・,
+      "騾溘ｄ縺九↓蟶ら伴譚代↓騾壼ｱ縺吶ｋ鄒ｩ蜍・,
+      "螳ｶ譌上ｄ隕ｪ譌上↓騾｣邨｡縺励∝ｯｾ蠢懊ｒ蜊碑ｭｰ縺吶ｋ蜉ｪ蜉帷ｾｩ蜍・,
+      "縺ｾ縺壹・繧ｱ繧｢繝励Λ繝ｳ縺ｫ蜿肴丐縺輔○縲∵ｧ伜ｭ舌ｒ隕九ｋ鄒ｩ蜍・,
+    ],
+    answer: 1,
+    explanation:
+      "鬮倬ｽ｢閠・剞蠕・亟豁｢豕慕ｬｬ7譚｡縺ｫ繧医ｊ縲∫函蜻ｽ蜿医・霄ｫ菴薙↓驥榊､ｧ縺ｪ蜊ｱ髯ｺ縺檎函縺倥※縺・ｋ陌仙ｾ・′逍代ｏ繧後ｋ蝣ｴ蜷医・縲・溘ｄ縺九↓蟶ら伴譚代↓騾壼ｱ縺励↑縺代ｌ縺ｰ縺ｪ繧翫∪縺帙ｓ縲・,
+  },
+  {
+    id: 3,
+    text:
+      "蛻ｩ逕ｨ閠・・諱ｯ蟄舌′縲∵悽莠ｺ縺ｮ蟷ｴ驥代ｄ鬆占ｲｯ驥代ｒ譛ｬ莠ｺ縺ｮ諢乗昴↓蜿阪＠縺ｦ閾ｪ蛻・・逕滓ｴｻ雋ｻ繧・滄≡霑疲ｸ医↓菴ｿ縺｣縺ｦ縺・ｋ縺薙→縺悟愛譏弱＠縺ｾ縺励◆縲ゅ％繧後・縺ｩ縺ｮ遞ｮ鬘槭・陌仙ｾ・↓縺ゅ◆繧翫∪縺吶°縲・,
+    choices: ["蠢・炊逧・剞蠕・, "莉玖ｭｷ繝ｻ荳冶ｩｱ縺ｮ謾ｾ譽・・謾ｾ莉ｻ・医ロ繧ｰ繝ｬ繧ｯ繝茨ｼ・, "邨梧ｸ育噪陌仙ｾ・, "霄ｫ菴鍋噪陌仙ｾ・],
+    answer: 2,
+    explanation:
+      "譛ｬ莠ｺ縺ｮ蜷域э縺ｪ縺励↓雋｡逕｣繧・≡驫ｭ繧剃ｽｿ逕ｨ縺吶ｋ陦檎ぜ縺ｯ邨梧ｸ育噪陌仙ｾ・・蜈ｸ蝙九〒縺吶・,
+  },
+  {
+    id: 4,
+    text:
+      "險ｪ蝠丈ｻ玖ｭｷ繧ｵ繝ｼ繝薙せ縺ｫ縺翫＞縺ｦ縲∝茜逕ｨ閠・・讓ｩ蛻ｩ謫∬ｭｷ縺ｮ隕ｳ轤ｹ縺九ｉ荳埼←蛻・→閠・∴繧峨ｌ繧玖｡檎ぜ縺ｯ縺ｩ繧後〒縺吶°縲・,
+    choices: [
+      "謗・勁荳ｭ縺ｫ縺ｵ縺輔℃霎ｼ縺ｿ縺ｫ豌励▼縺堺ｺ区･ｭ謇縺ｫ蝣ｱ蜻翫・螳｢隕ｳ莠句ｮ溘ｒ險倬鹸",
+      "蟷ｴ驥代・菴ｿ縺・ｾｼ縺ｿ逶ｸ隲・ｒ蜿励￠荳雁昇縺ｸ蝣ｱ蜻翫＠蛹・峡縺ｸ騾｣邨｡",
+      "隱ｿ逅・凾縺ｫ譛ｬ莠ｺ縺ｮ諢丞髄繧定◇縺榊叙繧翫Γ繝九Η繝ｼ繧剃ｸ邱偵↓閠・∴繧・,
+      "隕ｪ縺励∩繧定ｾｼ繧√※譛ｬ莠ｺ蜷阪〒縺ｯ縺ｪ縺上弱♀縺ｰ縺ゅ■繧・ｓ縲上→蜻ｼ縺ｶ鄙呈・",
+    ],
+    answer: 3,
+    explanation:
+      "縲弱♀縺倥＞縺｡繧・ｓ縲上弱♀縺ｰ縺ゅ■繧・ｓ縲上→蜻ｼ縺ｶ陦檎ぜ縺ｯ蟆雁宍繧貞す縺､縺代ｋ荳埼←蛻・↑蜻ｼ遘ｰ縺ｨ縺ｪ繧雁ｾ励∪縺吶ょｿ・炊逧・剞蠕・→蛻､譁ｭ縺輔ｌ繧句庄閭ｽ諤ｧ繧ゅ≠繧翫∪縺吶・,
+  },
+  {
+    id: 5,
+    text: "讓ｩ蛻ｩ謫∬ｭｷ縺ｮ蝓ｺ譛ｬ逧・↑閠・∴譁ｹ縺ｨ縺励※縲∵悽莠ｺ縺ｮ諢乗昴ｒ蟆企㍾縺励∵悽莠ｺ縺瑚・繧画ｱｺ螳壹〒縺阪ｋ繧医≧謾ｯ謠ｴ縺吶ｋ縺薙→繧剃ｽ輔→蜻ｼ縺ｳ縺ｾ縺吶°縲・,
+    choices: ["莉｣陦梧ｱｺ螳壹・謾ｯ謠ｴ", "閾ｪ蟾ｱ豎ｺ螳壹・謾ｯ謠ｴ", "繝代ち繝ｼ繝翫Μ繧ｺ繝縺ｫ蝓ｺ縺･縺丈ｿ晁ｭｷ", "莠区･ｭ閠・ｸｻ蟆弱・險育判"],
+    answer: 1,
+    explanation: "讓ｩ蛻ｩ謫∬ｭｷ縺ｮ蝓ｺ譛ｬ逅・ｿｵ縺ｯ譛ｬ莠ｺ縺ｮ諢乗晏ｰ企㍾縺ｧ縺ゅｊ縲√手・蟾ｱ豎ｺ螳壹・謾ｯ謠ｴ縲上′豎ゅａ繧峨ｌ縺ｾ縺吶・,
+  },
+  {
+    id: 6,
+    text: "鬮倬ｽ｢閠・剞蠕・・騾壼ｱ繝ｻ逶ｸ隲・・隨ｬ荳鄒ｩ逧・↑遯灘哨縺ｨ縺ｪ繧区ｩ滄未縺ｯ縺ｩ縺薙〒縺吶°縲・,
+    choices: ["隴ｦ蟇溽ｽｲ", "菫晏▼謇", "蟶ら伴譚代∪縺溘・蝨ｰ蝓溷桁諡ｬ謾ｯ謠ｴ繧ｻ繝ｳ繧ｿ繝ｼ", "遉ｾ莨夂ｦ冗･牙鵠隴ｰ莨・],
+    answer: 2,
+    explanation:
+      "鬮倬ｽ｢閠・剞蠕・亟豁｢豕輔↓繧医ｊ騾壼ｱ繝ｻ逶ｸ隲・ｪ灘哨縺ｯ蟶ら伴譚代→螳壹ａ繧峨ｌ縺ｦ縺・∪縺呻ｼ亥慍蝓溷桁諡ｬ謾ｯ謠ｴ繧ｻ繝ｳ繧ｿ繝ｼ縺梧球縺・慍蝓溘ｂ縺ゅｊ縺ｾ縺呻ｼ峨・,
+  },
+  {
+    id: 7,
+    text: "鬮倬ｽ｢閠・剞蠕・・逋ｺ逕溯ｦ∝屏縺ｨ縺励※縲∬ｪｿ譟ｻ縺ｧ譛繧ょ､壹￥謖吶￡繧峨ｌ縺ｦ縺・ｋ繧ゅ・縺ｯ縺ｩ繧後〒縺吶°縲・,
+    choices: ["莉玖ｭｷ繧ｵ繝ｼ繝薙せ縺ｮ荳埼←蜷・, "邨梧ｸ育噪蝗ｰ遯ｮ", "陌仙ｾ・ｒ縺励※縺・ｋ莠ｺ縺ｮ諤ｧ譬ｼ繧・ｺｺ譬ｼ", "莉玖ｭｷ縺ｫ髢｢縺吶ｋ遏･隴倥・諠・ｱ縺ｮ荳崎ｶｳ"],
+    answer: 2,
+    explanation:
+      "譚ｱ莠ｬ驛ｽ隱ｿ譟ｻ縺ｧ縺ｯ縲手剞蠕・ｒ縺励※縺・ｋ莠ｺ縺ｮ諤ｧ譬ｼ繧・ｺｺ譬ｼ縲上′譛螟壹∵ｬ｡縺・〒縲弱％繧後∪縺ｧ縺ｮ莠ｺ髢馴未菫ゅ上′謖吶￡繧峨ｌ縺ｾ縺励◆縲・,
+  },
+  {
+    id: 8,
+    text: "陌仙ｾ・・騾壼ｱ繧偵＠縺溷ｴ蜷医・壼ｱ閠・・繝励Λ繧､繝舌す繝ｼ縺ｯ縺ｩ縺・↑繧翫∪縺吶°縲・,
+    choices: [
+      "莠句ｮ溽｢ｺ隱阪・縺溘ａ陌仙ｾ・・↓騾壼ｱ閠・錐縺御ｼ昴∴繧峨ｌ繧・,
+      "騾壼ｱ閠・ュ蝣ｱ縺ｯ螳育ｧ倡ｾｩ蜍吶↓繧医ｊ貍上ｉ縺励※縺ｯ縺ｪ繧峨↑縺・,
+      "隴ｦ蟇滓骨譟ｻ縺悟ｿ・ｦ√↑蝣ｴ蜷医・騾壼ｱ閠・錐縺悟・髢九＆繧後ｋ",
+      "蛹ｿ蜷阪〒縺ｮ騾壼ｱ縺ｯ蜿励￠莉倥￠繧峨ｌ縺ｪ縺・,
+    ],
+    answer: 1,
+    explanation:
+      "鬮倬ｽ｢閠・剞蠕・亟豁｢豕慕ｬｬ8譚｡繝ｻ隨ｬ23譚｡縺ｫ繧医ｊ縲・壼ｱ閠・ｒ迚ｹ螳壹＆縺帙ｋ諠・ｱ繧呈ｼ上ｉ縺励※縺ｯ縺ｪ繧峨↑縺・ｮ育ｧ倡ｾｩ蜍吶′隱ｲ縺輔ｌ縺ｦ縺・∪縺吶・,
+  },
+  {
+    id: 9,
+    text: "隱咲衍逞・↑縺ｩ縺ｫ繧医ｊ蛻､譁ｭ閭ｽ蜉帙′荳榊香蛻・↑譁ｹ縺ｮ雋｡逕｣邂｡逅・ｄ螂醍ｴ・｡檎ぜ繧呈ｳ慕噪縺ｫ謾ｯ謠ｴ縺吶ｋ蛻ｶ蠎ｦ縺ｯ菴輔〒縺吶°縲・,
+    choices: ["譌･蟶ｸ逕滓ｴｻ閾ｪ遶区髪謠ｴ莠区･ｭ", "謌仙ｹｴ蠕瑚ｦ句宛蠎ｦ", "莉玖ｭｷ菫晞匱蛻ｶ蠎ｦ", "豌醍函蟋泌藤蛻ｶ蠎ｦ"],
+    answer: 1,
+    explanation:
+      "謌仙ｹｴ蠕瑚ｦ句宛蠎ｦ縺ｯ蠕瑚ｦ倶ｺｺ遲峨′豕慕噪讓ｩ髯舌↓蝓ｺ縺･縺崎ｲ｡逕｣邂｡逅・・螂醍ｴ・焔邯壹″繧定｡後≧莉慕ｵ・∩縺ｧ縲∫ｵ梧ｸ育噪陌仙ｾ・亟豁｢縺ｫ繧よ怏蜉ｹ縺ｧ縺吶・,
+  },
+  {
+    id: 10,
+    text: "鬮倬ｽ｢閠・剞蠕・亟豁｢豕輔′逶ｮ謖・＠縺ｦ縺・ｋ縺薙→縺ｨ縺励※縲∵怙繧る←蛻・↑繧ゅ・縺ｯ縺ｩ繧後〒縺吶°縲・,
+    choices: [
+      "陌仙ｾ・・ｒ蜴ｳ縺励￥鄂ｰ縺吶ｋ縺薙→",
+      "陌仙ｾ・＆繧後※縺・ｋ鬮倬ｽ｢閠・ｒ譁ｽ險ｭ縺ｫ邱頑･蜈･謇縺輔○繧九％縺ｨ",
+      "鬮倬ｽ｢閠・・讓ｩ蛻ｩ蛻ｩ逶翫・謫∬ｭｷ縺ｨ縲・､願ｭｷ閠・ｼ井ｻ玖ｭｷ閠・ｼ峨∈縺ｮ謾ｯ謠ｴ",
+      "螳ｶ譌丞・縺ｮ蝠城｡後↓陦梧帆縺御ｻ句・縺吶ｋ譬ｹ諡繧呈・遒ｺ縺ｫ縺吶ｋ縺薙→",
+    ],
+    answer: 2,
+    explanation:
+      "逶ｮ逧・・鬮倬ｽ｢閠・・讓ｩ蛻ｩ蛻ｩ逶翫・謫∬ｭｷ縺ｨ縺ゅｏ縺帙※鬢願ｭｷ閠・髪謠ｴ繧定｡後＞縲∝曙譁ｹ繧呈髪縺医ｋ縺薙→縺ｧ縺吶・,
+  },
+  {
+    id: 11,
+    text: "鬮倬ｽ｢閠・・霄ｫ縺瑚・蛻・・荳冶ｩｱ繧偵＠縺ｪ縺・∝現逋ゅｒ諡貞凄縺吶ｋ縺ｪ縺ｩ縲∬・霄ｫ縺ｮ蠢・ｺｫ繧貞些髯ｺ縺ｫ縺輔ｉ縺咏憾諷九ｒ菴輔→蜻ｼ縺ｳ縺ｾ縺吶°縲・,
+    choices: [
+      "蠢・炊逧・剞蠕・,
+      "莉玖ｭｷ繝ｻ荳冶ｩｱ縺ｮ謾ｾ譽・・謾ｾ莉ｻ・医ロ繧ｰ繝ｬ繧ｯ繝茨ｼ・,
+      "繧ｻ繝ｫ繝輔・繝阪げ繝ｬ繧ｯ繝茨ｼ郁・蟾ｱ謾ｾ莉ｻ・・,
+      "遉ｾ莨夂噪蟄､遶・,
+    ],
+    answer: 2,
+    explanation:
+      "繧ｻ繝ｫ繝輔・繝阪げ繝ｬ繧ｯ繝医・莉冶・°繧峨・陦檎ぜ縺ｧ縺ｯ縺ｪ縺上∵ｳ募ｾ倶ｸ翫・縲手剞蠕・上↓縺ｯ蜷ｫ縺ｾ繧後∪縺帙ｓ縺梧髪謠ｴ縺悟ｿ・ｦ√〒縺吶・,
+  },
+  {
+    id: 12,
+    text: "鬮倬ｽ｢閠・剞蠕・・閭梧勹縺ｫ縺ゅｋ隍・尅縺ｪ隕∝屏繧定ｧ｣豎ｺ縺吶ｋ縺溘ａ縺ｫ縲∵怙繧る㍾隕√→縺輔ｌ繧九い繝励Ο繝ｼ繝√・菴輔〒縺吶°縲・,
+    choices: ["諡・ｽ楢・ｸ莠ｺ縺瑚ｲｬ莉ｻ繧呈戟縺｣縺ｦ蟇ｾ蠢・, "隴ｦ蟇溘↓縺吶∋縺ｦ蟋斐・繧・, "螟夊・遞ｮ繝ｻ螟壽ｩ滄未騾｣謳ｺ縺ｮ繝√・繝繧｢繝励Ο繝ｼ繝・, "螳ｶ譌城俣縺ｮ隧ｱ縺怜粋縺・↓莉ｻ縺帙ｋ"],
+    answer: 2,
+    explanation:
+      "莉玖ｭｷ繝ｻ蛹ｻ逋ゅ・邨梧ｸ医・螳ｶ譌城未菫ゅ↑縺ｩ縺檎ｵ｡繧縺溘ａ縲∝､壽ｩ滄未騾｣謳ｺ縺ｫ繧医ｋ繝√・繝繧｢繝励Ο繝ｼ繝√′蝓ｺ譛ｬ縺ｧ縺吶・,
+  },
+  {
+    id: 13,
+    text: "縲取律蟶ｸ逕滓ｴｻ閾ｪ遶区髪謠ｴ莠区･ｭ・亥慍蝓溽ｦ冗･画ｨｩ蛻ｩ謫∬ｭｷ莠区･ｭ・峨上〒謠蝉ｾ帙＆繧後ｋ謾ｯ謠ｴ縺ｮ蜀・ｮｹ縺ｨ縺励※縲・←蛻・↑繧ゅ・縺ｯ縺ｩ繧後〒縺吶°縲・,
+    choices: [
+      "霄ｫ菴謎ｻ玖ｭｷ繧・ｮｶ莠区抄蜉ｩ縺ｪ縺ｩ縺ｮ險ｪ蝠丈ｻ玖ｭｷ",
+      "遖冗･峨し繝ｼ繝薙せ蛻ｩ逕ｨ謇狗ｶ壹″謠ｴ蜉ｩ繧・律蟶ｸ逧・↑驥鷹姦邂｡逅・,
+      "謌仙ｹｴ蠕瑚ｦ倶ｺｺ縺ｨ縺励※豕慕噪縺ｪ雋｡逕｣邂｡逅・ｄ螂醍ｴ・｡檎ぜ繧剃ｻ｣陦・,
+      "邱頑･譎ゅ↓鬧・￠縺､縺代ｋ騾壼ｱ繧ｵ繝ｼ繝薙せ",
+    ],
+    answer: 1,
+    explanation:
+      "蜷御ｺ区･ｭ縺ｯ遖冗･峨し繝ｼ繝薙せ縺ｮ蛻ｩ逕ｨ謠ｴ蜉ｩ繧・・蜈ｱ譁咎≡謾ｯ謇輔＞縺ｪ縺ｩ譌･蟶ｸ逧・≡驫ｭ邂｡逅・・㍾隕∵嶌鬘槭・鬆舌°繧顔ｭ峨ｒ陦後＞縺ｾ縺吶・,
+  },
+  {
+    id: 14,
+    text:
+      "蛻ｩ逕ｨ閠・ｮ・ｒ險ｪ蝠上＠縺滄圀縲∵帝ｳｴ繧雁｣ｰ縺瑚◇縺薙∴鬮倬ｽ｢閠・↓譁ｰ縺励＞縺ゅ＊縺後≠繧九・繧堤匱隕九ゆｻ玖ｭｷ繧ｵ繝ｼ繝薙せ莠区･ｭ閠・→縺励※縲√∪縺夊｡後≧縺ｹ縺崎｡悟虚縺ｯ縺ｩ繧後〒縺吶°縲・,
+    choices: [
+      "螳ｶ譌上↓蜀・ｯ・↓譛ｬ莠ｺ縺九ｉ隧ｳ縺励￥隧ｱ繧定◇縺・,
+      "縺昴・蝣ｴ縺ｧ螳ｶ譌上ｒ謖・ｰ弱＠縺ｦ繧・ａ縺輔○繧・,
+      "荳雁昇縺ｫ蝣ｱ蜻翫＠縲∫ｵ・ｹ斐→縺励※蟇ｾ蠢懊ｒ讀懆ｨ弱☆繧・,
+      "險ｼ諡縺後↑縺・◆繧√＠縺ｰ繧峨￥讒伜ｭ舌ｒ隕九ｋ",
+    ],
+    answer: 2,
+    explanation:
+      "荳閨ｷ蜩｡縺ｮ蜊倡峡蛻､譁ｭ縺ｯ繝ｪ繧ｹ繧ｯ縲ゅ∪縺壻ｸ雁昇縺ｸ蝣ｱ蜻翫＠縲∫ｵ・ｹ斐→縺励※莠句ｮ滓紛逅・・蟇ｾ蠢懈､懆ｨ弱・荳翫〒騾壼ｱ繝ｻ逶ｸ隲・∈縲・,
+  },
+  {
+    id: 15,
+    text:
+      "蛻ｩ逕ｨ閠・悽莠ｺ縺ｮ諢乗昴ｒ譛螟ｧ髯舌↓蟆企㍾縺励√◎縺ｮ莠ｺ縺梧戟縺､蜉帙ｒ蠑輔″蜃ｺ縺苓・繧臥函豢ｻ繧偵さ繝ｳ繝医Ο繝ｼ繝ｫ縺ｧ縺阪ｋ繧医≧縺ｫ謾ｯ謠ｴ縺吶ｋ閠・∴譁ｹ縺ｯ菴輔→蜻ｼ縺ｳ縺ｾ縺吶°縲・,
+    choices: ["繧｢繧ｻ繧ｹ繝｡繝ｳ繝・, "繝｢繝九ち繝ｪ繝ｳ繧ｰ", "繧ｨ繝ｳ繝代Ρ繝｡繝ｳ繝・, "繧ｳ繝ｳ繝励Λ繧､繧｢繝ｳ繧ｹ"],
+    answer: 2,
+    explanation: "繧ｨ繝ｳ繝代Ρ繝｡繝ｳ繝医・閾ｪ蟾ｱ豎ｺ螳壹ｒ謾ｯ謠ｴ縺励∫函豢ｻ縺ｮ荳ｻ菴捺ｧ繧帝ｫ倥ａ繧玖・∴譁ｹ縺ｧ縺吶・,
+  },
+  {
+    id: 16,
+    text: "蜊・ｻ｣逕ｰ蛹ｺ縺ｮ鬮倬ｽ｢閠・剞蠕・亟豁｢縺ｮ蜿悶ｊ邨・∩縺ｨ縺励※縲∝玄豌大髄縺代ワ繝ｳ繝峨ヶ繝・け縺ｮ諢帷ｧｰ縺ｯ菴輔〒縺吶°縲・,
+    choices: ["縺ゅｓ縺励ｓ謇句ｸｳ", "縺九′繧・″繝弱・繝・, "繝弱ャ繧ｯ縺ｮ謇句ｸｳ", "縺輔＆縺医≠縺・ヶ繝・け"],
+    answer: 2,
+    explanation:
+      "蜊・ｻ｣逕ｰ蛹ｺ縺ｯ縲朱ｫ倬ｽ｢閠・剞蠕・ぞ繝ｭ縺ｮ縺ｾ縺｡縺･縺上ｊ繝上Φ繝峨ヶ繝・け 繝弱ャ繧ｯ縺ｮ謇句ｸｳ縲上ｒ菴懈・繝ｻ驟榊ｸ・＠縺ｦ縺・∪縺吶・,
+  },
+  {
+    id: 17,
+    text: "鬮倬ｽ｢閠・剞蠕・・騾壼ｱ繧貞女縺代◆蟶ら伴譚代′縲∬剞蠕・・莠句ｮ溽｢ｺ隱阪・縺溘ａ縺ｫ陦後≧縺薙→縺後〒縺阪ｋ豕慕噪讓ｩ髯舌・菴輔〒縺吶°縲・,
+    choices: ["螳ｶ螳・骨邏｢", "遶句・隱ｿ譟ｻ", "騾ｮ謐輔・蜍ｾ逡・, "雋｡逕｣縺ｮ蟾ｮ縺玲款縺輔∴"],
+    answer: 1,
+    explanation:
+      "鬮倬ｽ｢閠・剞蠕・亟豁｢豕慕ｬｬ11譚｡縺ｫ繧医ｊ縲∝ｸら伴譚鷹聞縺ｯ蠢・ｦ√↓蠢懊§縺ｦ菴丞ｱ・∈縺ｮ遶句・隱ｿ譟ｻ繧定｡後≧縺薙→縺後〒縺阪∪縺吶・,
+  },
+  {
+    id: 18,
+    text: "陌仙ｾ・・閭梧勹隕∝屏縺ｨ縺励※縲惹ｻ玖ｭｷ逍ｲ繧後・莉玖ｭｷ繧ｹ繝医Ξ繧ｹ縲上′縺ゅｋ蝣ｴ蜷医∫音縺ｫ譛牙柑縺ｪ謾ｯ謠ｴ遲悶・縺ｩ繧後〒縺吶°縲・,
+    choices: ["謌仙ｹｴ蠕瑚ｦ句宛蠎ｦ縺ｮ蛻ｩ逕ｨ", "繧ｷ繝ｧ繝ｼ繝医せ繝・う繧・ョ繧､繧ｵ繝ｼ繝薙せ縺ｮ蛻ｩ逕ｨ菫・ｲ", "迴ｾ驥醍ｵｦ莉倥↓繧医ｋ邨梧ｸ域髪謠ｴ", "莉玖ｭｷ閠・∈縺ｮ蜴ｳ縺励＞謖・ｰ・],
+    answer: 1,
+    explanation:
+      "莉玖ｭｷ閠・・繝ｬ繧ｹ繝代う繝育｢ｺ菫昴′驥崎ｦ√ゅす繝ｧ繝ｼ繝医せ繝・う繧・ョ繧､繧ｵ繝ｼ繝薙せ縺ｮ豢ｻ逕ｨ縺梧怏蜉ｹ縺ｧ縺吶・,
+  },
+  {
+    id: 19,
+    text:
+      "莉玖ｭｷ繧ｵ繝ｼ繝薙せ莠区･ｭ閠・↓蟇ｾ縺励※縲∽ｻ､蜥・蟷ｴ4譛医°繧蛾ｫ倬ｽ｢閠・剞蠕・亟豁｢縺ｮ縺溘ａ縺ｫ鄒ｩ蜍吝喧縺輔ｌ縺滓蒔鄂ｮ縺ｫ蜷ｫ縺ｾ繧後↑縺・ｂ縺ｮ縺ｯ縺ｩ繧後〒縺吶°縲・,
+    choices: [
+      "陌仙ｾ・亟豁｢蟇ｾ遲悶ｒ讀懆ｨ弱☆繧句ｧ泌藤莨壹・螳壽悄髢句ぎ",
+      "陌仙ｾ・亟豁｢縺ｮ縺溘ａ縺ｮ謖・・縺ｮ謨ｴ蛯・,
+      "蜈ｨ閨ｷ蜩｡縺ｸ縺ｮ逶｣隕悶き繝｡繝ｩ縺ｮ險ｭ鄂ｮ",
+      "陌仙ｾ・亟豁｢縺ｮ縺溘ａ縺ｮ遐比ｿｮ縺ｮ螳壽悄螳滓命",
+    ],
+    answer: 2,
+    explanation:
+      "莉､蜥・蟷ｴ4譛医°繧牙ｧ泌藤莨夊ｨｭ鄂ｮ繝ｻ謖・・謨ｴ蛯吶・遐比ｿｮ螳滓命繝ｻ諡・ｽ楢・ｨｭ鄂ｮ縺檎ｾｩ蜍吝喧縲ら屮隕悶き繝｡繝ｩ險ｭ鄂ｮ縺ｯ鄒ｩ蜍吶〒縺ｯ縺ゅｊ縺ｾ縺帙ｓ縲・,
+  },
+  {
+    id: 20,
+    text: "鬮倬ｽ｢閠・剞蠕・ｯｾ蠢懊・蝓ｺ譛ｬ蟋ｿ蜍｢縺ｨ縺励※隱､縺｣縺ｦ縺・ｋ繧ゅ・縺ｯ縺ｩ繧後〒縺吶°縲・,
+    choices: [
+      "鬮倬ｽ｢閠・悽莠ｺ縺ｮ讓ｩ蛻ｩ謫∬ｭｷ繧呈怙蜆ｪ蜈医☆繧・,
+      "陌仙ｾ・・ｒ鄂ｰ縺吶ｋ縺薙→繧堤ｬｬ荳縺ｮ逶ｮ逧・→縺吶ｋ",
+      "繝√・繝繧｢繝励Ο繝ｼ繝√〒蟇ｾ蠢懊☆繧・,
+      "髟ｷ譛溽噪隕也せ縺ｧ謾ｯ謠ｴ繧定｡後≧",
+    ],
+    answer: 1,
+    explanation:
+      "逶ｮ逧・・鬮倬ｽ｢閠・・螳牙・遒ｺ菫昴→讓ｩ蛻ｩ謫∬ｭｷ縲∬レ譎ｯ隱ｲ鬘後・隗｣豎ｺ縺ｨ鬢願ｭｷ閠・髪謠ｴ縺ｧ縺ゅｊ縲∫ｽｰ縺吶ｋ縺薙→閾ｪ菴薙′隨ｬ荳逶ｮ逧・〒縺ｯ縺ゅｊ縺ｾ縺帙ｓ縲・,
+  },
+];
+
+function drawQuestions(list, count, seed) {
+  const arr = [...list];
+  let random = Math.sin(seed || Date.now()) * 10000;
+  const seededRandom = () => {
+    random = Math.sin(random + 1) * 10000;
+    return random - Math.floor(random);
+  };
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRandom() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, count);
+}
+
+const STORAGE_KEY = "ea_quiz_results_v1";
+function loadResults(){
+  try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; }
+  catch(e){ console.warn("Failed to load results", e); return []; }
+}
+function saveResults(list){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+  catch(e){ console.warn("Failed to save results", e); }
+}
+function toCSV(results){
+  const header = ["timestamp","department","fullName","attempt","score","total","questionId","questionText","selectedIndex","selectedText","correctIndex","correctText","isCorrect"];
+  const lines = [header.join(",")];
+  results.forEach(r=>{
+    r.details.forEach(d=>{
+      const row = [
+        r.timestamp,
+        r.dept,
+        r.fullName,
+        r.attempt,
+        r.score,
+        r.total,
+        d.questionId,
+        String(d.questionText||"").replaceAll("\n"," ").replaceAll(",","縲・),
+        d.selectedIndex,
+        String(d.selectedText||"").replaceAll(",","縲・),
+        d.correctIndex,
+        String(d.correctText||"").replaceAll(",","縲・),
+        d.isCorrect?"TRUE":"FALSE",
+      ];
+      lines.push(row.map(v=> typeof v === 'string' ? `"${v.replaceAll('"','""')}"` : v).join(","));
+    });
+  });
+  return lines.join("\n");
+}
+
+function download(filename, text){
+  const blob = new Blob([text], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+const WEBHOOK_KEY = "ea_webhook_url";
+const PENDING_KEY = "ea_pending_posts_v1";
+
+function isPreviewSandbox(){
+  try {
+    const h = location.hostname || "";
+    if (h.includes("chatgpt") || h.includes("openai")) return true;
+  } catch(_){}
+  try {
+    const ref = document.referrer ? new URL(document.referrer).hostname : "";
+    if (ref.includes("chatgpt") || ref.includes("openai")) return true;
+  } catch(_){}
+  return false;
+}
+function loadPending(){ try{ const r = localStorage.getItem(PENDING_KEY); return r? JSON.parse(r): []; } catch{ return []; } }
+function savePending(arr){ try{ localStorage.setItem(PENDING_KEY, JSON.stringify(arr)); } catch{} }
+function queuePending(url, data){ const q = loadPending(); q.push({ url, data, ts: Date.now() }); savePending(q); }
+async function flushPending(){
+  if (isPreviewSandbox()) return;
+  const q = loadPending();
+  if (!q.length) return;
+  const remain = [];
+  for (const item of q){
+    let ok = false;
+    try {
+      if (navigator.sendBeacon) {
+        const blob = new Blob([item.data], { type: 'text/plain;charset=UTF-8' });
+        ok = navigator.sendBeacon(item.url, blob);
+      }
+    } catch(_){}
+    if (!ok) {
+      try { await fetch(item.url, { method:'POST', mode:'no-cors', keepalive:true, body:item.data }); ok = True; } catch(_){ ok = false; }
+    }
+    if (!ok) remain.push(item);
+  }
+  savePending(remain);
+}
+function postWebhook(url, payload){
+  if (!url) return;
+  const data = JSON.stringify(payload);
+  if (isPreviewSandbox()) { queuePending(url, data); return; }
+  try {
+    if (navigator.sendBeacon) {
+      const blob = new Blob([data], { type: 'text/plain;charset=UTF-8' });
+      const ok = navigator.sendBeacon(url, blob);
+      if (ok) return;
+    }
+  } catch(_){}
+  try { fetch(url, { method:'POST', mode:'no-cors', keepalive:true, body:data }); } catch(e){ console.warn('Webhook error', e); }
+}
+
+export default function ElderAbuseQuizApp() {
+  const [attempt, setAttempt] = useState(1);
+  const [submitted, setSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [dept, setDept] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [results, setResults] = useState(loadResults());
+  const [webhookUrl, setWebhookUrl] = useState(()=>{ try { return localStorage.getItem(WEBHOOK_KEY) || ""; } catch { return ""; } });
+  const [saveStatus, setSaveStatus] = useState("idle");
+  const [passcode, setPasscode] = useState("");
+  const [unlocked, setUnlocked] = useState(false);
+  const [delAsk, setDelAsk] = useState(false);
+  const [delCode, setDelCode] = useState("");
+  const [delStatus, setDelStatus] = useState("idle");
+
+  const saveWebhook = () => {
+    try { localStorage.setItem(WEBHOOK_KEY, webhookUrl); setSaveStatus("ok"); }
+    catch(e){ try { sessionStorage.setItem(WEBHOOK_KEY, webhookUrl); setSaveStatus("session"); } catch { setSaveStatus("error"); } }
+  };
+  const tryUnlock = () => { if (passcode === "2255") { setUnlocked(true); setSaveStatus("idle"); } else { setSaveStatus("wrong"); } };
+
+  const quizQuestions = useMemo(() => drawQuestions(allQuestions, 15, Date.now() + attempt), [attempt]);
+
+  const [answers, setAnswers] = useState(Array(quizQuestions.length).fill(null));
+
+  useEffect(() => {
+    setAnswers(Array(quizQuestions.length).fill(null));
+    setSubmitted(false);
+    setScore(0);
+  }, [quizQuestions]);
+
+  useEffect(() => {
+    try {
+      const sample = drawQuestions(allQuestions, 15, 12345);
+      console.assert(sample.length === 15, "[TEST] 15蝠乗歓蜃ｺ縺後〒縺阪※縺・∪縺帙ｓ");
+      console.assert(new Set(sample.map((q) => q.id)).size === 15, "[TEST] 驥崎､・＠縺溯ｨｭ蝠上′蜷ｫ縺ｾ繧後※縺・∪縺・);
+      allQuestions.forEach((q) => {
+        console.assert(q.answer >= 0 && q.answer < q.choices.length, `[TEST] answer index out of range: id=${q.id}`);
+      });
+      const dummy = Array(15).fill(null);
+      dummy[0] = 0;
+      const answeredCount = dummy.filter((a) => a !== null).length;
+      const expectedProgress = Math.round((answeredCount / 15) * 100);
+      console.assert(expectedProgress === Math.round((1 / 15) * 100), "[TEST] 騾ｲ謐苓ｨ育ｮ励↓荳肴紛蜷医′縺ゅｊ縺ｾ縺・);
+    } catch (e) {
+      console.warn("Self tests failed:", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    flushPending();
+    const onFocus = () => flushPending();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
+
+  const allAnswered = answers.every((a) => a !== null);
+
+  const handleSelect = (qIndex, choiceIndex) => {
+    if (submitted) return;
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[qIndex] = choiceIndex;
+      return next;
+    });
+  };
+
+  const handleSubmit = () => {
+    if (!allAnswered || dept.trim() === "" || fullName.trim() === "") return;
+    const s = answers.reduce((acc, ans, i) => (ans === quizQuestions[i].answer ? acc + 1 : acc), 0);
+    setScore(s);
+    setSubmitted(true);
+
+    const detail = quizQuestions.map((q, i) => ({
+      questionId: q.id,
+      questionText: q.text,
+      selectedIndex: answers[i],
+      selectedText: q.choices[answers[i]],
+      correctIndex: q.answer,
+      correctText: q.choices[q.answer],
+      isCorrect: answers[i] === q.answer,
+    }));
+    const record = {
+      timestamp: new Date().toISOString(),
+      dept: dept.trim(),
+      fullName: fullName.trim(),
+      attempt,
+      score: s,
+      total: quizQuestions.length,
+      details: detail,
+    };
+    const next = [...results, record];
+    setResults(next);
+    saveResults(next);
+
+    if (webhookUrl) {
+      postWebhook(webhookUrl, record);
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePrint = () => { window.print(); };
+
+  const doDeleteAll = () => {
+    if (delCode !== "2255") { setDelStatus("wrong"); return; }
+    try { localStorage.removeItem(STORAGE_KEY); } catch(_){ }
+    setResults([]);
+    setDelStatus("ok");
+    setDelAsk(false);
+    setDelCode("");
+  };
+
+  const handleRetry = () => {
+    setAttempt((a) => a + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const passed = submitted && score === quizQuestions.length;
+  const answeredCount = answers.filter((a) => a !== null).length;
+  const progress = Math.round((answeredCount / Math.max(quizQuestions.length, 1)) * 100);
+  const canSubmit = allAnswered && dept.trim() !== "" && fullName.trim() !== "";
+
+  const exportAll = () => {
+    const csv = toCSV(results);
+    const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g, "-");
+    download(`e-learning-results-${ts}.csv`, csv);
+  };
+  const passRate = results.length ? Math.round((results.filter(r=>r.score===r.total).length/results.length)*100) : 0;
+  const avgAccuracy = (()=>{ const c=results.reduce((a,r)=>a+r.score,0); const t=results.reduce((a,r)=>a+r.total,0); return t? Math.round((c/t)*100):0; })();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-zinc-100 text-zinc-800">
+      <header className="sticky top-0 z-30 backdrop-blur bg-white/70 border-b border-zinc-200">
+        <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shadow-inner" />
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight">鬮倬ｽ｢閠・剞蠕・亟豁｢繝ｻ讓ｩ蛻ｩ謫∬ｭｷ e-learning</h1>
+              <p className="text-xs text-zinc-500">遉ｾ蜀・比ｿｮ・懷・20蝠上°繧画ｯ主屓15蝠上ｒ繝ｩ繝ｳ繝繝蜃ｺ鬘・/p>
+            </div>
+          </div>
+          <div className="hidden md:block w-56">
+            <Progress value={progress} />
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <Tabs defaultValue="quiz">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="quiz">繝・せ繝・/TabsTrigger>
+            <TabsTrigger value="summary">髮・ｨ・/TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="quiz">
+            <Card className="border-amber-200/60 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl font-serif tracking-wide">遒ｺ隱阪ユ繧ｹ繝・/span>
+                  {submitted && (
+                    passed ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-emerald-700 text-sm border border-emerald-200"><CheckCircle2 className="h-4 w-4" /> 蜷域ｼ</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 rounded-full bg-amber-100/80 px-4 py-2 text-amber-800 text-base md:text-lg border-2 border-amber-300 shadow-sm"><XCircle className="h-5 w-5 md:h-6 md:w-6" /> 蜀肴倦謌ｦ縺悟ｿ・ｦ・/span>
+                    )
+                  )}
+                </CardTitle>
+                <CardDescription className="text-zinc-600">
+                  謇螻槭・豌丞錐繧貞・蜉帙・荳翫・5蝠上☆縺ｹ縺ｦ縺ｫ蝗樒ｭ斐＠縺ｦ縺九ｉ縲梧治轤ｹ縺吶ｋ縲阪ｒ謚ｼ縺励※縺上□縺輔＞縲よｺ轤ｹ縺ｫ縺ｪ繧九∪縺ｧ邨ゆｺ・〒縺阪∪縺帙ｓ縲ょ・謖第姶縺吶ｋ縺ｨ豈主屓繝ｩ繝ｳ繝繝縺ｧ蜃ｺ鬘後＆繧後∪縺吶・                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6 grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">謇螻・span className="ml-1 text-amber-600">*</span></label>
+                    <Select value={dept} onValueChange={setDept}>
+                      <SelectTrigger className="w-full"><SelectValue placeholder="謇螻槭ｒ驕ｸ謚・ /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="迚ｹ蛻･鬢願ｭｷ閠∽ｺｺ繝帙・繝">迚ｹ蛻･鬢願ｭｷ閠∽ｺｺ繝帙・繝</SelectItem>
+                        <SelectItem value="逵玖ｭｷ">逵玖ｭｷ</SelectItem>
+                        <SelectItem value="險ｪ蝠丈ｻ玖ｭｷ">險ｪ蝠丈ｻ玖ｭｷ</SelectItem>
+                        <SelectItem value="螻・ｮ・ｻ玖ｭｷ謾ｯ謠ｴ莠区･ｭ謇">螻・ｮ・ｻ玖ｭｷ謾ｯ謠ｴ莠区･ｭ謇</SelectItem>
+                        <SelectItem value="蛹・峡謾ｯ謠ｴ繧ｻ繝ｳ繧ｿ繝ｼ">蛹・峡謾ｯ謠ｴ繧ｻ繝ｳ繧ｿ繝ｼ</SelectItem>
+                        <SelectItem value="莠句漁">莠句漁</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700">豌丞錐<span className="ml-1 text-amber-600">*</span></label>
+                    <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="萓具ｼ壼ｱｱ逕ｰ 螟ｪ驛・ required />
+                  </div>
+                </div>
+                {submitted && (
+                  <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+                    <p className="text-lg font-semibold">
+                      邨先棡・・span className="tabular-nums">{score}</span> / {quizQuestions.length}
+                    </p>
+                    <p className="text-sm mt-1 text-zinc-700">蜿苓ｬ幄・ｼ嘴dept} ・・{fullName}</p>
+                    <p className="text-sm opacity-90">
+                      {passed ? "貅轤ｹ縺ｧ縺吶ょ､ｧ螟峨☆縺ｰ繧峨＠縺・〒縺呻ｼ・ : "貅轤ｹ縺ｧ縺ｯ縺ゅｊ縺ｾ縺帙ｓ縲ら炊隗｣繧呈ｷｱ繧√ｋ縺溘ａ蜀肴倦謌ｦ縺励※縺上□縺輔＞縲・}
+                    </p>
+                  </div>
+                )}
+
+                <ol className="space-y-6">
+                  {quizQuestions.map((q, qi) => {
+                    const selected = answers[qi];
+                    const correctIndex = q.answer;
+                    return (
+                      <li key={q.id}>
+                        <Card className="border-zinc-200 shadow-sm">
+                          <CardHeader>
+                            <CardTitle className="text-base font-semibold">
+                              隨ｬ{qi + 1}蝠擾ｼ施q.text}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid gap-3">
+                              {q.choices.map((choice, ci) => {
+                                const chosen = selected === ci;
+                                const showCorrect = submitted && ci === correctIndex;
+                                const showWrongChosen = submitted && chosen && ci !== correctIndex;
+                                return (
+                                  <label
+                                    key={ci}
+                                    className={[
+                                      "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition",
+                                      chosen && !submitted && "border-amber-400 ring-1 ring-amber-300 bg-amber-50",
+                                      showCorrect && "border-emerald-300 ring-1 ring-emerald-200 bg-emerald-50",
+                                      showWrongChosen && "border-rose-300 ring-1 ring-rose-200 bg-rose-50",
+                                      !chosen && !submitted && "hover:bg-zinc-50",
+                                    ]
+                                      .filter(Boolean)
+                                      .join(" ")}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name={`q-${qi}`}
+                                      className="mt-1 h-4 w-4"
+                                      checked={chosen || false}
+                                      onChange={() => handleSelect(qi, ci)}
+                                      disabled={submitted}
+                                      aria-label={`驕ｸ謚櫁い${ci + 1}`}
+                                    />
+                                    <div className="leading-relaxed">
+                                      <div className="font-medium">
+                                        {ci + 1}. {choice}
+                                      </div>
+                                    </div>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            {submitted && (
+                              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                                <div className="font-semibold mb-1">隗｣隱ｬ</div>
+                                <p>{q.explanation}</p>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </CardContent>
+              <CardFooter className="flex items-center justify-between gap-3">
+                <div className="flex-1 md:max-w-[280px]">
+                  <Progress value={progress} />
+                  <p className="mt-2 text-xs text-zinc-500">蝗樒ｭ秘ｲ謐暦ｼ嘴progress}%・・answers.filter((a) => a !== null).length}/{quizQuestions.length}・・/p>
+                </div>
+
+                {submitted && (
+                  <Button variant="outline" onClick={handlePrint} className="rounded-2xl px-6 shadow-sm">蜊ｰ蛻ｷ縺吶ｋ</Button>
+                )}
+
+                {!submitted && (
+                  <Button
+                    size="lg"
+                    onClick={handleSubmit}
+                    disabled={!canSubmit}
+                    className="rounded-2xl px-6 shadow-sm"
+                  >
+                    謗｡轤ｹ縺吶ｋ
+                  </Button>
+                )}
+
+                {submitted && !passed && (
+                  <Button
+                    size="lg"
+                    onClick={handleRetry}
+                    className="rounded-2xl px-6 shadow-sm bg-amber-600 hover:bg-amber-700"
+                  >
+                    <RefreshCcw className="mr-2 h-4 w-4" /> 蜀肴倦謌ｦ・域眠縺励＞15蝠擾ｼ・                  </Button>
+                )}
+
+                {submitted && passed && (
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="secondary"
+                      onClick={handleRetry}
+                      className="rounded-2xl px-6 shadow-sm"
+                    >
+                      繧ゅ≧荳蠎ｦ蜿励￠繧・                    </Button>
+                    <span className="text-sm text-zinc-500">窶ｻ貅轤ｹ縺ｮ縺溘ａ邨ゆｺ・庄閭ｽ縺ｧ縺・/span>
+                  </div>
+                )}
+              </CardFooter>
+            </Card>
+
+            <p className="mt-6 text-xs text-zinc-500">
+              窶ｻ 譛ｬ謨呎攝縺ｯ遉ｾ蜀・比ｿｮ逕ｨ縺ｧ縺吶よｳ穂ｻ､縺ｮ驕狗畑繝ｻ蝨ｰ蝓溘Ν繝ｼ繝ｫ縺ｫ髢｢縺吶ｋ螳溷漁蛻､譁ｭ縺ｯ謇螻櫁・豐ｻ菴薙・譛譁ｰ隕・倡ｭ峨ｒ遒ｺ隱阪＠縺ｦ縺上□縺輔＞縲・            </p>
+          </TabsContent>
+
+          <TabsContent value="summary">
+            {!unlocked ? (
+              <Card className="border-amber-200/60 shadow-sm">
+                <CardHeader>
+                  <CardTitle>髮・ｨ茨ｼ育ｮ｡逅・・畑・・/CardTitle>
+                  <CardDescription>繝代せ繧ｳ繝ｼ繝峨ｒ蜈･蜉帙☆繧九→髮・ｨ医ｒ陦ｨ遉ｺ縺励∪縺吶・/CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3 md:grid-cols-[1fr_auto] max-w-xl">
+                    <Input type="password" placeholder="繝代せ繧ｳ繝ｼ繝・ value={passcode} onChange={(e)=>setPasscode(e.target.value)} />
+                    <Button onClick={tryUnlock}>陦ｨ遉ｺ縺吶ｋ</Button>
+                    {saveStatus === "wrong" && <p className="text-xs text-rose-600 md:col-span-2">繝代せ繧ｳ繝ｼ繝峨′驕輔＞縺ｾ縺吶・/p>}
+                    <p className="text-xs text-zinc-500 md:col-span-2">窶ｻ 髮・ｨ医・邂｡逅・・・縺ｿ髢ｲ隕ｧ蜿ｯ閭ｽ縺ｧ縺吶・/p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <Card className="border-zinc-200 shadow-sm">
+                  <CardHeader>
+                    <CardTitle>髮・ｨ・/CardTitle>
+                    <CardDescription>縺薙・繝悶Λ繧ｦ繧ｶ縺ｫ菫晏ｭ倥＆繧後※縺・ｋ蜿鈴ｨ鍋ｵ先棡縺ｮ荳隕ｧ縺ｧ縺吶ょｿ・ｦ√↓蠢懊§縺ｦCSV繧偵お繧ｯ繧ｹ繝昴・繝医＠縺ｦ縺上□縺輔＞縲・/CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {results.length === 0 ? (
+                      <p className="text-sm text-zinc-500">縺ｾ縺繝・・繧ｿ縺後≠繧翫∪縺帙ｓ縲ゅ∪縺壹・繝・せ繝医ｒ螳溯｡後＠縲梧治轤ｹ縺吶ｋ縲阪ｒ謚ｼ縺励※縺上□縺輔＞縲・/p>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                          <div className="rounded-xl border bg-white p-4"><div className="text-zinc-500">險倬鹸莉ｶ謨ｰ</div><div className="text-2xl font-semibold tabular-nums">{results.length}</div></div>
+                          <div className="rounded-xl border bg-white p-4"><div className="text-zinc-500">蟷ｳ蝮・ｭ｣遲皮紫</div><div className="text-2xl font-semibold tabular-nums">{avgAccuracy}%</div></div>
+                          <div className="rounded-xl border bg-white p-4"><div className="text-zinc-500">貅轤ｹ邇・/div><div className="text-2xl font-semibold tabular-nums">{passRate}%</div></div>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full text-sm">
+                            <thead>
+                              <tr className="border-b">
+                                <th className="text-left p-2">蜿嶺ｿ｡譌･譎・/th>
+                                <th className="text-left p-2">謇螻・/th>
+                                <th className="text-left p-2">豌丞錐</th>
+                                <th className="text-right p-2">蠕礼せ</th>
+                                <th className="text-right p-2">蜃ｺ鬘梧焚</th>
+                                <th className="text-left p-2">蜷亥凄</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {results.map((r, idx) => (
+                                <tr key={idx} className="border-b last:border-0">
+                                  <td className="p-2">{new Date(r.timestamp).toLocaleString('ja-JP', { hour12: false })}</td>
+                                  <td className="p-2">{r.dept}</td>
+                                  <td className="p-2">{r.fullName}</td>
+                                  <td className="p-2 text-right tabular-nums">{r.score}</td>
+                                  <td className="p-2 text-right tabular-nums">{r.total}</td>
+                                  <td className="p-2">{r.score === r.total ? '蜷域ｼ' : '譛ｪ蜷域ｼ'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                  <CardFooter className="flex flex-col md:flex-row md:items-center gap-3">
+                    <div className="flex gap-3">
+                      <Button onClick={exportAll}>CSV繧ｨ繧ｯ繧ｹ繝昴・繝・/Button>
+                      <Button variant="destructive" onClick={()=>{ setDelStatus('idle'); setDelAsk(v=>!v); }} disabled={results.length===0}>蜈ｨ莉ｶ蜑企勁</Button>
+                    </div>
+                    {delAsk && (
+                      <div className="w-full md:w-auto flex items-center gap-2">
+                        <Input type="password" placeholder="繝代せ繧ｳ繝ｼ繝・ value={delCode} onChange={(e)=>setDelCode(e.target.value)} className="md:w-56" />
+                        <Button variant="destructive" onClick={doDeleteAll}>蜑企勁螳溯｡・/Button>
+                        {delStatus === 'wrong' && <span className="text-xs text-rose-600">繝代せ繧ｳ繝ｼ繝峨′驕輔＞縺ｾ縺・/span>}
+                        {delStatus === 'ok' && <span className="text-xs text-emerald-700">蜑企勁縺励∪縺励◆</span>}
+                      </div>
+                    )}
+                  </CardFooter>
+                </Card>
+
+                <Card className="mt-6 border-amber-200/60 shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Google 繧ｷ繝ｼ繝磯｣謳ｺ・・ebhook・・/CardTitle>
+                    <CardDescription>GAS 繧ｦ繧ｧ繝悶い繝励Μ縺ｮ URL・域忰蟆ｾ縺ｯ <code>?token=kanda2255_Training_7gP4vY9xL2wQ0nH3tF5Z</code>・峨ｒ菫晏ｭ倥☆繧九→縲∵治轤ｹ譎ゅ↓閾ｪ蜍暮∽ｿ｡縺励∪縺吶・/CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {!unlocked ? null : (
+                      <>
+                        <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+                          <Input value={webhookUrl} onChange={(e)=>setWebhookUrl(e.target.value)} placeholder="https://script.google.com/macros/s/XXXX/exec?token=kanda2255_Training_7gP4vY9xL2wQ0nH3tF5Z" />
+                          <Button onClick={saveWebhook}>菫晏ｭ・/Button>
+                        </div>
+                        <div className="mt-1 text-xs">
+                          {saveStatus === "ok" && <span className="text-emerald-700">菫晏ｭ倥＠縺ｾ縺励◆・医％縺ｮ繝悶Λ繧ｦ繧ｶ縺ｫ菫晄戟・・/span>}
+                          {saveStatus === "session" && <span className="text-amber-700">菫晏ｭ倥＠縺ｾ縺励◆・医％縺ｮ繧ｻ繝・す繝ｧ繝ｳ縺ｮ縺ｿ・・/span>}
+                          {saveStatus === "error" && <span className="text-rose-700">菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆縲６RL繧呈而縺医※縺上□縺輔＞縲・/span>}
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        <div id="print-area" className="hidden">
+          {submitted && (
+            <div className="max-w-3xl mx-auto">
+              <h1 className="text-2xl font-bold mb-4">鬮倬ｽ｢閠・剞蠕・亟豁｢繝ｻ讓ｩ蛻ｩ謫∬ｭｷ e-learning・懈治轤ｹ邨先棡</h1>
+              <p className="mb-2">蜿苓ｬ幄・ｼ嘴dept} ・・{fullName}</p>
+              <p className="mb-4">蠕礼せ・嘴score} / {quizQuestions.length}縲・懊{new Date().toLocaleString('ja-JP', { hour12: false })}</p>
+              <ol className="space-y-4">
+                {quizQuestions.map((q, qi) => (
+                  <li key={q.id} className="">
+                    <div className="font-semibold mb-1">隨ｬ{qi + 1}蝠擾ｼ施q.text}</div>
+                    <div className="mb-1"><span className="font-medium">蝗樒ｭ費ｼ・/span>{answers[qi] !== null ? `${answers[qi] + 1}. ${q.choices[answers[qi]]}` : '譛ｪ蝗樒ｭ・}</div>
+                    <div className="text-zinc-800"><span className="font-medium">隗｣隱ｬ・・/span>{q.explanation}</div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </div>
+
+        <style>{`@media print { body * { visibility:hidden !important; } #print-area, #print-area * { visibility:visible !important; } #print-area { position:absolute; inset:0; padding:24px; background:#fff; color:#000; } }`}</style>
+      </main>
+
+      <footer className="mx-auto max-w-5xl px-4 pb-10 pt-4 text-center text-xs text-zinc-500">
+        鬮倬ｽ｢閠・≠繧薙＠繧薙そ繝ｳ繧ｿ繝ｼ逾樒伐縲豬懃伐菴懈・
+      </footer>
+    </div>
+  );
+}
